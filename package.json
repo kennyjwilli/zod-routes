@@ -1,0 +1,62 @@
+{
+  "name": "zod-routes",
+  "version": "0.0.0",
+  "description": "Headless type-safe URL routing helpers for React apps, powered by Zod.",
+  "license": "MIT",
+  "author": "Kenny Williams",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "README.md", "LICENSE"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "import": "./dist/next.js"
+    },
+    "./vanilla": {
+      "types": "./dist/vanilla.d.ts",
+      "import": "./dist/vanilla.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check ."
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "zod": "^4",
+    "next": ">=14"
+  },
+  "peerDependenciesMeta": {
+    "next": { "optional": true }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@testing-library/react": "^16.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "expect-type": "^1.1.0",
+    "jsdom": "^25.0.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "zod": "^4.0.0"
+  },
+  "keywords": ["router", "routing", "zod", "react", "next", "type-safe", "url"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kennywilliams/zod-routes.git"
+  }
+}
