@@ -79,6 +79,19 @@ describe("createRouter integration", () => {
     );
   });
 
+  test("buildFullUrl strips trailing slash from baseUrl", () => {
+    const adapter = makeStubAdapter();
+    const router = createRouter({
+      routes,
+      adapter,
+      baseUrl: "https://example.com/",
+    });
+    expect(router.buildFullUrl("/")).toBe("https://example.com/");
+    expect(router.buildFullUrl("/items/[id]", { params: { id: "abc" } })).toBe(
+      "https://example.com/items/abc"
+    );
+  });
+
   test("end-to-end: TypedLink + useRouteParams", () => {
     const adapter = makeStubAdapter("/items/abc");
     const { TypedLink, useRouteParams } = createRouter({ routes, adapter });

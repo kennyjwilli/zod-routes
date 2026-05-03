@@ -12,6 +12,8 @@ export interface CreateRouterOptions<T extends Routes> {
 
 export function createRouter<T extends Routes>(options: CreateRouterOptions<T>): RouterBindings<T> {
   const { routes, adapter, baseUrl = "" } = options;
+  // Strip trailing slash so `${normalizedBase}${path}` doesn't double the leading slash.
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
   const buildUrl = createBuildUrl(routes);
   const TypedLink = createTypedLink(buildUrl, adapter.Link);
   const useRouteParams = createUseRouteParams(routes, adapter);
@@ -21,7 +23,7 @@ export function createRouter<T extends Routes>(options: CreateRouterOptions<T>):
   // a generic spread without losing type info. Wrap and cast at the boundary.
   const buildFullUrl: BuildUrlFn<T> = ((route: string, ...args: unknown[]) => {
     const path = (buildUrl as (route: string, options?: unknown) => string)(route, args[0]);
-    return `${baseUrl}${path}`;
+    return `${normalizedBase}${path}`;
   }) as BuildUrlFn<T>;
 
   return {
