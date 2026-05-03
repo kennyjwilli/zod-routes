@@ -11,15 +11,11 @@ import type {
 /**
  * Creates a type-safe URL builder for the given routes.
  *
- * Always returns relative URLs. If you need full URLs (sitemaps, emails, OG
- * tags, canonical links), prepend your base URL at the call site:
- * `${BASE_URL}${buildUrl(...)}`.
- *
  * @example
  * const buildUrl = createBuildUrl(routes);
- * buildUrl("/")                                                  // "/"
+ * buildUrl("/")                                                       // "/"
  * buildUrl("/families/[family]", { params: { family: "Asteraceae" } }) // "/families/Asteraceae"
- * buildUrl("/list", { search: { page: 2 } })                     // "/list?page=2"
+ * buildUrl("/list", { search: { page: 2 } })                          // "/list?page=2"
  */
 export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
   return function buildUrl<K extends keyof T & string>(
