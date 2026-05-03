@@ -1,7 +1,7 @@
 import { createBuildUrl } from "./builder";
 import { createTypedLink } from "./components";
 import { createUseRouteParams, createUseRouteSearch } from "./hooks";
-import type { BuildUrlFn, RouterAdapter, RouterBindings, Routes } from "./types";
+import type { RouterAdapter, RouterBindings, Routes } from "./types";
 
 export interface CreateRouterOptions<T extends Routes> {
   routes: T;
@@ -11,20 +11,12 @@ export interface CreateRouterOptions<T extends Routes> {
 }
 
 export function createRouter<T extends Routes>(options: CreateRouterOptions<T>): RouterBindings<T> {
-  const { routes, adapter, baseUrl = "" } = options;
-  // Strip trailing slash so `${normalizedBase}${path}` doesn't double the leading slash.
-  const normalizedBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  const { routes, adapter, baseUrl } = options;
   const buildUrl = createBuildUrl(routes);
+  const buildFullUrl = createBuildUrl(routes, { baseUrl });
   const TypedLink = createTypedLink(buildUrl, adapter.Link);
   const useRouteParams = createUseRouteParams(routes, adapter);
   const useRouteSearch = createUseRouteSearch(routes, adapter);
-
-  // Cast: the variadic conditional-tuple signature of BuildUrlFn doesn't admit
-  // a generic spread without losing type info. Wrap and cast at the boundary.
-  const buildFullUrl: BuildUrlFn<T> = ((route: string, ...args: unknown[]) => {
-    const path = (buildUrl as (route: string, options?: unknown) => string)(route, args[0]);
-    return `${normalizedBase}${path}`;
-  }) as BuildUrlFn<T>;
 
   return {
     buildUrl,
