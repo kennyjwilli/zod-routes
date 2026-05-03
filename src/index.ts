@@ -40,6 +40,7 @@ export type {
   RouteWithParams,
   RouteWithSearch,
   TypedLinkComponent,
+  TypedLinkOwnProps,
   TypedLinkProps,
   UseRouteParamsFn,
   UseRouteSearchFn,

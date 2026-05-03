@@ -1,12 +1,16 @@
 "use client";
 
-import NextLink from "next/link";
+// Use explicit `.js` extensions so Node's strict ESM resolver can find these
+// when the package is consumed via node_modules (e.g., from a Vitest test).
+// Next 16 has no `exports` map, so bare specifiers without `.js` only resolve
+// through Vite/webpack/turbopack — not Node ESM strict.
+import NextLink from "next/link.js";
 import {
   useParams as nextUseParams,
   useSearchParams as nextUseSearchParams,
   usePathname,
   useRouter,
-} from "next/navigation";
+} from "next/navigation.js";
 import { useCallback } from "react";
 import type { AdapterLinkProps, NavigateOptions, RouterAdapter } from "../types";
 
