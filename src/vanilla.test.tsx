@@ -48,3 +48,59 @@ describe("vanillaAdapter", () => {
     expect(result.current).toEqual({});
   });
 });
+
+describe("VanillaLink click interception", () => {
+  beforeEach(() => setUrl("/start"));
+  afterEach(() => setUrl("/"));
+
+  test("plain click intercepts and navigates via pushState", () => {
+    const { container } = render(<vanillaAdapter.Link href="/dest">click</vanillaAdapter.Link>);
+    const a = container.querySelector("a")!;
+    a.click();
+    expect(window.location.pathname).toBe("/dest");
+  });
+
+  test("click with replace uses replaceState", () => {
+    const initialLength = window.history.length;
+    const { container } = render(
+      <vanillaAdapter.Link href="/dest" replace>
+        click
+      </vanillaAdapter.Link>
+    );
+    const a = container.querySelector("a")!;
+    a.click();
+    expect(window.location.pathname).toBe("/dest");
+    expect(window.history.length).toBe(initialLength);
+  });
+
+  test("modifier-click does not intercept (lets browser handle)", () => {
+    const { container } = render(<vanillaAdapter.Link href="/dest">click</vanillaAdapter.Link>);
+    const a = container.querySelector("a")!;
+    const ev = new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true });
+    a.dispatchEvent(ev);
+    expect(window.location.pathname).toBe("/start");
+    expect(ev.defaultPrevented).toBe(false);
+  });
+
+  test('target="_blank" does not intercept', () => {
+    const { container } = render(
+      <vanillaAdapter.Link href="/dest" target="_blank">
+        click
+      </vanillaAdapter.Link>
+    );
+    const a = container.querySelector("a")!;
+    const ev = new MouseEvent("click", { bubbles: true, cancelable: true });
+    a.dispatchEvent(ev);
+    expect(window.location.pathname).toBe("/start");
+    expect(ev.defaultPrevented).toBe(false);
+  });
+
+  test("middle-click (button !== 0) does not intercept", () => {
+    const { container } = render(<vanillaAdapter.Link href="/dest">click</vanillaAdapter.Link>);
+    const a = container.querySelector("a")!;
+    const ev = new MouseEvent("click", { bubbles: true, cancelable: true, button: 1 });
+    a.dispatchEvent(ev);
+    expect(window.location.pathname).toBe("/start");
+    expect(ev.defaultPrevented).toBe(false);
+  });
+});

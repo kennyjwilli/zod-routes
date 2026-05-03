@@ -17,19 +17,15 @@ import type {
   RouteWithSearch,
   RouterAdapter,
   Routes,
+  UpdateSearchOptions,
   UseRouteParamsFn,
   UseRouteSearchFn,
   WithNullableValues,
 } from "./types";
 
-interface UpdateOptions {
-  replace?: boolean;
-  shallow?: boolean;
-}
-
 type UpdateFn<T> = (
   updates: WithNullableValues<T> | ((prev: T) => WithNullableValues<T>),
-  options?: UpdateOptions
+  options?: UpdateSearchOptions
 ) => void;
 
 export interface UseSearchParamsStateReturn<T> {
@@ -49,6 +45,10 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
   const path = adapter.usePath();
   const searchParams = adapter.useSearchParams();
   const navigate = adapter.useNavigate();
+  // Stable string snapshot of the current search params — `searchParams` itself
+  // is a fresh URLSearchParams instance per render, which would defeat
+  // useCallback identity. The string is identity-stable when content is.
+  const searchString = searchParams.toString();
 
   const defaults = useMemo(() => getSchemaDefaults(schema), [schema]);
   const schemaKeys = useMemo(() => Object.keys(schema.shape), [schema]);
@@ -58,9 +58,10 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
     // back individually (rather than collapsing the whole object to defaults
     // when one field is absent or unparseable).
     const rawParams: Record<string, unknown> = { ...(defaults as Record<string, unknown>) };
+    const params = new URLSearchParams(searchString);
 
     for (const key of schemaKeys) {
-      const urlValues = searchParams.getAll(key);
+      const urlValues = params.getAll(key);
       if (urlValues.length === 0) continue;
       const schemaField = schema.shape[key];
       if (schemaField == null) continue;
@@ -90,14 +91,15 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
       return defaults;
     }
     return result.data;
-  }, [searchParams, schema, defaults, schemaKeys]);
+  }, [searchString, schema, defaults, schemaKeys]);
 
   const update: UpdateFn<z.output<T>> = useCallback(
     (updates, options) => {
       const resolvedUpdates = typeof updates === "function" ? updates(values) : updates;
+      const currentParams = new URLSearchParams(searchString);
 
       let newParams: URLSearchParams;
-      if (options?.replace) {
+      if (options?.reset) {
         const newValues: Record<string, unknown> = {};
         for (const key of schemaKeys) {
           const newValue =
@@ -108,7 +110,7 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
         newParams = serializeToURLSearchParams(
           newValues as WithNullableValues<z.output<T>>,
           defaults as Record<string, unknown>,
-          searchParams,
+          currentParams,
           schema
         );
       } else {
@@ -116,7 +118,7 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
         newParams = serializeToURLSearchParams(
           newValues as WithNullableValues<z.output<T>>,
           defaults as Record<string, unknown>,
-          searchParams,
+          currentParams,
           schema
         );
       }
@@ -126,7 +128,7 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
       if (options?.replace !== undefined) navOpts.replace = options.replace;
       navigate(url, navOpts);
     },
-    [values, defaults, searchParams, schemaKeys, schema, navigate, path]
+    [values, defaults, searchString, schemaKeys, schema, navigate, path]
   );
 
   return { values, update };
@@ -169,6 +171,11 @@ export function createUseRouteSearch<T extends Routes>(
   ): RouteSearchState<T, K> {
     const routeDef = routes[route] as RouteDefinition;
 
+    // The type system constrains `route` to a search-having key, so this throw
+    // is only reachable via deliberate type circumvention (`@ts-expect-error`
+    // or `as any`). Throws happen before hooks are called — a render that
+    // switches from a search-having route to a search-less one within the same
+    // call site would violate Rules of Hooks. The type system prevents this.
     if (!routeDef.search) {
       throw new Error(`[zod-routes] Route "${route}" has no search declared`);
     }

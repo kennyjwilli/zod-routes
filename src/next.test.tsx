@@ -74,6 +74,15 @@ describe("nextAdapter", () => {
     expect(pushMock).toHaveBeenCalledWith("/x", { scroll: false });
   });
 
+  test("useNavigate with shallow:true + replace uses replaceState", () => {
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+    const { result } = renderHook(() => nextAdapter.useNavigate());
+    act(() => result.current("/x", { shallow: true, replace: true }));
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+    replaceStateSpy.mockRestore();
+  });
+
   test("Link renders next/link", () => {
     const { getByTestId } = render(<nextAdapter.Link href="/foo">x</nextAdapter.Link>);
     expect(getByTestId("next-link").getAttribute("href")).toBe("/foo");

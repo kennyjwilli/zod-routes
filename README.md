@@ -54,6 +54,20 @@ Returns:
 - `useRouteParams(route)` — read dynamic route params.
 - `useRouteSearch(route)` — read and update search params.
 
+#### `useRouteSearch` update options
+
+```ts
+const { search, updateSearch } = useRouteSearch("/list");
+updateSearch({ page: 2 });                            // merge
+updateSearch({ page: 2 }, { reset: true });           // reset other fields to defaults
+updateSearch({ page: 2 }, { replace: true });         // history.replaceState (no new entry)
+updateSearch({ page: 2 }, { shallow: false });        // full router navigation (default: shallow)
+updateSearch((prev) => ({ page: prev.page + 1 }));    // function form
+updateSearch({ q: null });                            // null deletes a field
+```
+
+`reset` (content) and `replace` (history) are independent. `reset` blanks non-specified schema fields back to defaults; `replace` controls whether the navigation creates a new history entry. You can combine them.
+
 ### Route definition shape
 
 ```ts

@@ -28,7 +28,8 @@
     "typecheck": "tsc --noEmit",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "check": "biome check ."
+    "check": "biome check .",
+    "prepublishOnly": "npm run check && npm run typecheck && npm test && npm run build"
   },
   "peerDependencies": {
     "react": ">=18",
