@@ -9,7 +9,6 @@ import {
   serializeToURLSearchParams,
 } from "./schema-utils";
 import type {
-  NavigateOptions,
   RouteDefinition,
   RouteParams,
   RouteSearchState,
@@ -99,7 +98,7 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
       const currentParams = new URLSearchParams(searchString);
 
       let newParams: URLSearchParams;
-      if (options?.reset) {
+      if (options?.replace) {
         const newValues: Record<string, unknown> = {};
         for (const key of schemaKeys) {
           const newValue =
@@ -124,9 +123,7 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
       }
 
       const url = newParams.size === 0 ? path : `${path}?${newParams.toString()}`;
-      const navOpts: NavigateOptions = { shallow: options?.shallow ?? true };
-      if (options?.replace !== undefined) navOpts.replace = options.replace;
-      navigate(url, navOpts);
+      navigate(url, { shallow: options?.shallow ?? true });
     },
     [values, defaults, searchString, schemaKeys, schema, navigate, path]
   );

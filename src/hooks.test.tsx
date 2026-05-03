@@ -125,27 +125,14 @@ describe("createUseRouteSearch", () => {
     expect(adapter.currentUrl()).toBe("/list?page=5&q=foo");
   });
 
-  test("updateSearch with reset:true resets non-specified to defaults", () => {
+  test("updateSearch with replace:true resets non-specified to defaults", () => {
     const adapter = makeStubAdapter("/list?page=3&q=foo");
     const useRouteSearch = createUseRouteSearch(routes, adapter);
     const { result } = renderHook(() => useRouteSearch("/list"));
     act(() => {
-      result.current.updateSearch({ page: 5 }, { reset: true });
+      result.current.updateSearch({ page: 5 }, { replace: true });
     });
     expect(adapter.currentUrl()).toBe("/list?page=5");
-  });
-
-  test("updateSearch with replace:true uses replace navigation (history)", () => {
-    const navOpts: Array<unknown> = [];
-    const adapter = makeStubAdapter("/list");
-    adapter.useNavigate = () => (url: string, opts?: unknown) => {
-      navOpts.push(opts);
-      adapter.setUrl(url);
-    };
-    const useRouteSearch = createUseRouteSearch(routes, adapter);
-    const { result } = renderHook(() => useRouteSearch("/list"));
-    act(() => result.current.updateSearch({ page: 2 }, { replace: true }));
-    expect(navOpts[0]).toMatchObject({ replace: true });
   });
 
   test("updateSearch function form receives current values", () => {

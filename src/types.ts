@@ -121,8 +121,6 @@ type SearchOutput<T, K extends RouteWithSearch<T>> = T[K] extends { search: z.Zo
 
 export interface UpdateSearchOptions {
   /** Reset all schema fields not specified in `updates` to their defaults. Default false (merge). */
-  reset?: boolean;
-  /** Use `history.replaceState` instead of `pushState` (no new history entry). Default false. */
   replace?: boolean;
   /** Search-param-only update; adapters may bypass router for speed. Default true. */
   shallow?: boolean;
