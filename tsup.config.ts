@@ -4,7 +4,11 @@ import { defineConfig } from "tsup";
 const CLIENT_FILES = ["dist/next.js", "dist/vanilla.js"];
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/next.tsx", "src/vanilla.tsx"],
+  entry: {
+    index: "src/index.ts",
+    next: "src/adapters/next.tsx",
+    vanilla: "src/adapters/vanilla.tsx",
+  },
   format: ["esm"],
   dts: true,
   clean: true,

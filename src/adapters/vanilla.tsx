@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import type { AdapterLinkProps, NavigateOptions, RouterAdapter } from "./types";
+import type { AdapterLinkProps, NavigateOptions, RouterAdapter } from "../types";
 
 const POPSTATE_EVENT = "popstate";
 const URL_CHANGE_EVENT = "zod-routes:urlchange";

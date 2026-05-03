@@ -1,9 +1,9 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
+import { vanillaAdapter } from "./adapters/vanilla";
 import { createRouter } from "./index";
 import type { AdapterLinkProps, RouterAdapter } from "./types";
-import { vanillaAdapter } from "./vanilla";
 
 function makeStubAdapter(initialUrl = "/") {
   let url = initialUrl;

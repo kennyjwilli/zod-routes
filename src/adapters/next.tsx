@@ -8,7 +8,7 @@ import {
   useRouter,
 } from "next/navigation";
 import { useCallback } from "react";
-import type { AdapterLinkProps, NavigateOptions, RouterAdapter } from "./types";
+import type { AdapterLinkProps, NavigateOptions, RouterAdapter } from "../types";
 
 function usePathHook(): string {
   return usePathname() ?? "/";
