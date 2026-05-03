@@ -98,7 +98,33 @@ Bare `.catch(x)` won't work on Zod ≥4.4 — the parser errors with `expected n
 import { nextAdapter } from "zod-routes/next";
 ```
 
-Built against the App Router (`next@>=14`). Pages Router is not supported.
+Built against the App Router (`next@>=14.1` recommended; `pushState`-based shallow updates require 14.1+ to be observed by `useSearchParams`). Pages Router is not supported.
+
+#### Server / Client split (recommended)
+
+`createRouter` returns both server-safe (`buildUrl`, `buildFullUrl`) and client-only (`TypedLink`, `useRouteParams`, `useRouteSearch`) bindings in one object. To use the server-safe pieces from server components and the client pieces from client components, split the export across two files:
+
+```ts
+// app/lib/routes.ts  (no "use client" — importable from server components)
+import { createRouter } from "zod-routes";
+import { nextAdapter } from "zod-routes/next";
+
+const router = createRouter({ routes, adapter: nextAdapter });
+
+export const { buildUrl, buildFullUrl } = router;
+// re-exported for the client file to consume:
+export const _router = router;
+```
+
+```ts
+// app/lib/routes.client.ts  (client boundary)
+"use client";
+import { _router } from "./routes";
+
+export const { TypedLink, useRouteParams, useRouteSearch } = _router;
+```
+
+Then import `buildUrl` from `routes.ts` anywhere; import `TypedLink`/hooks from `routes.client.ts` only in client components. React will surface a clear error if you accidentally use a client-only binding in a server component.
 
 ### Vanilla (`<a>` + `window.history`)
 

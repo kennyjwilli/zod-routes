@@ -44,6 +44,19 @@ export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
       for (const [key, value] of Object.entries(params)) {
         path = path.replace(`[${key}]`, encodeURIComponent(String(value)));
       }
+
+      // If validation failed and the user supplied a partial params object, some
+      // `[placeholder]` segments will still be in the path. Replace them with
+      // empty string and warn — anything is better than navigating to a URL that
+      // contains literal `[name]` syntax.
+      const unfilled = path.match(/\[([^\]]+)\]/g);
+      if (unfilled) {
+        console.warn(
+          `[zod-routes] Route "${route}" has unfilled params (${unfilled.join(", ")}); replacing with empty string`,
+          { params: options.params }
+        );
+        path = path.replace(/\[[^\]]+\]/g, "");
+      }
     }
 
     if (options?.search && routeDef.search) {

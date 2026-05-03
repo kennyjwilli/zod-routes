@@ -78,4 +78,16 @@ describe("createBuildUrl", () => {
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
+
+  test("partial params: unfilled placeholders are replaced with empty string + warn", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(
+      buildUrl("/families/[family]/genera/[genus]", {
+        // @ts-expect-error - intentionally missing genus
+        params: { family: "Asteraceae" },
+      })
+    ).toBe("/families/Asteraceae/genera/");
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
 });

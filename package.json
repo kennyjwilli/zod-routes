@@ -31,10 +31,17 @@
     "check": "biome check .",
     "prepublishOnly": "npm run check && npm run typecheck && npm test && npm run build"
   },
+  "homepage": "https://github.com/kennywilliams/zod-routes#readme",
+  "bugs": {
+    "url": "https://github.com/kennywilliams/zod-routes/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "peerDependencies": {
-    "next": ">=14",
+    "next": ">=14.1",
     "react": ">=18",
-    "zod": "^4"
+    "zod": "^4.4"
   },
   "peerDependenciesMeta": {
     "next": {
