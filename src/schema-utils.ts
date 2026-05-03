@@ -1,5 +1,4 @@
 import type { z } from "zod";
-import type { WithNullableValues } from "./types";
 
 /**
  * Extracts default/fallback values from a Zod object schema by parsing `{}`.
@@ -47,9 +46,9 @@ function deepEqual(a: unknown, b: unknown): boolean {
  * - null: deletes the param
  * - undefined: skips (preserves existing)
  */
-export function serializeToURLSearchParams<T extends Record<string, unknown>>(
-  values: WithNullableValues<T>,
-  defaults: T,
+export function serializeToURLSearchParams(
+  values: { [key: string]: unknown },
+  defaults: { [key: string]: unknown },
   currentParams: URLSearchParams = new URLSearchParams(),
   schema?: { shape: Record<string, unknown> }
 ): URLSearchParams {

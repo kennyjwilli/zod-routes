@@ -1,12 +1,10 @@
 import { getSchemaDefaults, serializeToURLSearchParams } from "./schema-utils";
-import type {
-  BuildUrlFn,
-  BuildUrlOptions,
-  RouteDefinition,
-  RouteParams,
-  RouteSearch,
-  Routes,
-} from "./types";
+import type { BuildUrlFn, RouteDefinition, Routes } from "./types";
+
+interface LooseOptions {
+  params?: Record<string, unknown>;
+  search?: Record<string, unknown>;
+}
 
 /**
  * Creates a type-safe URL builder for the given routes.
@@ -18,21 +16,16 @@ import type {
  * buildUrl("/list", { search: { page: 2 } })                          // "/list?page=2"
  */
 export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
-  return function buildUrl<K extends keyof T & string>(
-    route: K,
-    ...args: RouteParams<T, K> extends never
-      ? RouteSearch<T, K> extends never
-        ? []
-        : [options?: BuildUrlOptions<T, K>]
-      : [options: BuildUrlOptions<T, K>]
-  ): string {
-    const callOptions = args[0] as BuildUrlOptions<T, K> | undefined;
-    const routeDef = routes[route] as RouteDefinition;
-    let path: string = route;
+  // Implementation typed loosely so the body doesn't have to fight the
+  // variadic-conditional signature of BuildUrlFn. The single cast at the
+  // return assertions the strict shape for callers.
+  function buildUrl(route: string, callOptions?: LooseOptions): string {
+    const routeDef = routes[route as keyof T] as RouteDefinition;
+    let path = route;
 
     if (callOptions?.params && routeDef.params) {
       const result = routeDef.params.safeParse(callOptions.params);
-      const params = result.success ? result.data : (callOptions.params as Record<string, unknown>);
+      const params = result.success ? result.data : callOptions.params;
 
       if (!result.success) {
         console.warn(`[zod-routes] Invalid route params for "${route}", using raw values`, {
@@ -62,8 +55,8 @@ export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
     if (callOptions?.search && routeDef.search) {
       const defaults = getSchemaDefaults(routeDef.search);
       const params = serializeToURLSearchParams(
-        callOptions.search as Record<string, unknown>,
-        defaults as Record<string, unknown>,
+        callOptions.search,
+        defaults,
         new URLSearchParams(),
         routeDef.search
       );
@@ -72,5 +65,7 @@ export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
     }
 
     return path;
-  };
+  }
+
+  return buildUrl as BuildUrlFn<T>;
 }

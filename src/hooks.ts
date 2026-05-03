@@ -94,34 +94,25 @@ export function _useSearchParamsState<T extends z.ZodObject<z.ZodRawShape>>(
 
   const update: UpdateFn<z.output<T>> = useCallback(
     (updates, options) => {
-      const resolvedUpdates = typeof updates === "function" ? updates(values) : updates;
+      const resolvedUpdates = (typeof updates === "function" ? updates(values) : updates) as Record<
+        string,
+        unknown
+      >;
+      const looseDefaults = defaults as Record<string, unknown>;
       const currentParams = new URLSearchParams(searchString);
 
-      let newParams: URLSearchParams;
+      let newValues: Record<string, unknown>;
       if (options?.replace) {
-        const newValues: Record<string, unknown> = {};
+        newValues = {};
         for (const key of schemaKeys) {
-          const newValue =
-            resolvedUpdates[key as keyof typeof resolvedUpdates] ??
-            (defaults as Record<string, unknown>)[key];
+          const newValue = resolvedUpdates[key] ?? looseDefaults[key];
           newValues[key] = newValue == null ? null : newValue;
         }
-        newParams = serializeToURLSearchParams(
-          newValues as WithNullableValues<z.output<T>>,
-          defaults as Record<string, unknown>,
-          currentParams,
-          schema
-        );
       } else {
-        const newValues = { ...values, ...resolvedUpdates };
-        newParams = serializeToURLSearchParams(
-          newValues as WithNullableValues<z.output<T>>,
-          defaults as Record<string, unknown>,
-          currentParams,
-          schema
-        );
+        newValues = { ...values, ...resolvedUpdates };
       }
 
+      const newParams = serializeToURLSearchParams(newValues, looseDefaults, currentParams, schema);
       const url = newParams.size === 0 ? path : `${path}?${newParams.toString()}`;
       navigate(url, { shallow: options?.shallow ?? true });
     },
