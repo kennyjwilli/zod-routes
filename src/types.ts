@@ -146,8 +146,6 @@ export type UseRouteSearchFn<T> = <K extends RouteWithSearch<T> & string>(
 
 export interface RouterBindings<T extends Routes> {
   buildUrl: BuildUrlFn<T>;
-  /** When `baseUrl` was not provided to `createRouter`, this returns the same string as `buildUrl`. */
-  buildFullUrl: BuildUrlFn<T>;
   TypedLink: TypedLinkComponent<T>;
   useRouteParams: UseRouteParamsFn<T>;
   useRouteSearch: UseRouteSearchFn<T>;

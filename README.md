@@ -45,14 +45,24 @@ npm install next
 
 ## API
 
-### `createRouter({ routes, adapter, baseUrl? })`
+### `createRouter({ routes, adapter })`
 
 Returns:
-- `buildUrl(route, options?)` — pure URL builder. Server-safe.
-- `buildFullUrl(route, options?)` — same as `buildUrl` but prepends `baseUrl`. If you didn't pass a `baseUrl`, returns the same string as `buildUrl`.
+- `buildUrl(route, options?)` — pure URL builder, returns relative URLs. Server-safe.
 - `TypedLink` — typed wrapper around the adapter's Link.
 - `useRouteParams(route)` — read dynamic route params.
 - `useRouteSearch(route)` — read and update search params.
+
+#### Full URLs (sitemaps, emails, OG tags)
+
+`buildUrl` always returns a relative URL. When you need a full URL, prepend your base at the callsite:
+
+```ts
+import { BASE_URL } from "@/constants";
+const fullUrl = `${BASE_URL}${buildUrl("/items/[id]", { params: { id } })}`;
+```
+
+The library deliberately doesn't bind a `baseUrl` — most app code wants relative URLs (for `<Link>`, `router.push`, etc.), and the small minority that wants full URLs is concentrated in a few files (sitemap, mailers, MCP responses) where the template literal is no worse than calling a wrapper.
 
 #### `useRouteSearch` update options
 

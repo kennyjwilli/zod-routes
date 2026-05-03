@@ -6,21 +6,17 @@ import type { RouterAdapter, RouterBindings, Routes } from "./types";
 export interface CreateRouterOptions<T extends Routes> {
   routes: T;
   adapter: RouterAdapter;
-  /** Optional. When provided, `buildFullUrl` prepends it; otherwise `buildFullUrl` returns the same string as `buildUrl`. */
-  baseUrl?: string;
 }
 
 export function createRouter<T extends Routes>(options: CreateRouterOptions<T>): RouterBindings<T> {
-  const { routes, adapter, baseUrl } = options;
+  const { routes, adapter } = options;
   const buildUrl = createBuildUrl(routes);
-  const buildFullUrl = createBuildUrl(routes, { baseUrl });
   const TypedLink = createTypedLink(buildUrl, adapter.Link);
   const useRouteParams = createUseRouteParams(routes, adapter);
   const useRouteSearch = createUseRouteSearch(routes, adapter);
 
   return {
     buildUrl,
-    buildFullUrl,
     TypedLink,
     useRouteParams,
     useRouteSearch,

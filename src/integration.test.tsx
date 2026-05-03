@@ -44,50 +44,20 @@ describe("createRouter integration", () => {
     "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
   } as const;
 
-  test("returns all expected bindings (buildFullUrl always present)", () => {
+  test("returns all expected bindings", () => {
     const adapter = makeStubAdapter();
     const router = createRouter({ routes, adapter });
     expect(router.buildUrl).toBeTypeOf("function");
-    expect(router.buildFullUrl).toBeTypeOf("function");
     expect(router.TypedLink).toBeTypeOf("function");
     expect(router.useRouteParams).toBeTypeOf("function");
     expect(router.useRouteSearch).toBeTypeOf("function");
   });
 
-  test("buildFullUrl with no baseUrl returns same string as buildUrl", () => {
+  test("buildUrl is relative — full URLs are user's job (template literal at callsite)", () => {
     const adapter = makeStubAdapter();
-    const router = createRouter({ routes, adapter });
-    expect(router.buildFullUrl("/")).toBe(router.buildUrl("/"));
-    expect(router.buildFullUrl("/items/[id]", { params: { id: "abc" } })).toBe(
-      router.buildUrl("/items/[id]", { params: { id: "abc" } })
-    );
-  });
-
-  test("buildFullUrl prepends baseUrl when provided", () => {
-    const adapter = makeStubAdapter();
-    const router = createRouter({
-      routes,
-      adapter,
-      baseUrl: "https://example.com",
-    });
-    expect(router.buildFullUrl("/")).toBe("https://example.com/");
-    expect(router.buildFullUrl("/items/[id]", { params: { id: "abc" } })).toBe(
-      "https://example.com/items/abc"
-    );
-    expect(router.buildFullUrl("/list", { search: { page: 2 } })).toBe(
-      "https://example.com/list?page=2"
-    );
-  });
-
-  test("buildFullUrl strips trailing slash from baseUrl", () => {
-    const adapter = makeStubAdapter();
-    const router = createRouter({
-      routes,
-      adapter,
-      baseUrl: "https://example.com/",
-    });
-    expect(router.buildFullUrl("/")).toBe("https://example.com/");
-    expect(router.buildFullUrl("/items/[id]", { params: { id: "abc" } })).toBe(
+    const { buildUrl } = createRouter({ routes, adapter });
+    const baseUrl = "https://example.com";
+    expect(`${baseUrl}${buildUrl("/items/[id]", { params: { id: "abc" } })}`).toBe(
       "https://example.com/items/abc"
     );
   });

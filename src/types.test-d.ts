@@ -60,7 +60,9 @@ router.useRouteSearch("/items/[id]");
 // useRouteSearch return type
 expectTypeOf(router.useRouteSearch("/list").search).toEqualTypeOf<{ page: number }>();
 
-// buildFullUrl is always present in the return type.
-router.buildFullUrl("/");
-const router2 = createRouter({ routes, adapter: stubAdapter, baseUrl: "https://x.com" });
-expectTypeOf(router2.buildFullUrl).toEqualTypeOf(router.buildFullUrl);
+// createRouter's return type does NOT include buildFullUrl — full URLs are
+// the user's job (template literal at callsite). Verify by asserting the
+// property is absent at the type level.
+expectTypeOf<keyof typeof router>().toEqualTypeOf<
+  "buildUrl" | "TypedLink" | "useRouteParams" | "useRouteSearch"
+>();

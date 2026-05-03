@@ -8,32 +8,20 @@ import type {
   Routes,
 } from "./types";
 
-export interface CreateBuildUrlOptions {
-  /** Prefixed to every URL produced. Trailing slash is stripped. Defaults to "". */
-  baseUrl?: string;
-}
-
 /**
  * Creates a type-safe URL builder for the given routes.
+ *
+ * Always returns relative URLs. If you need full URLs (sitemaps, emails, OG
+ * tags, canonical links), prepend your base URL at the call site:
+ * `${BASE_URL}${buildUrl(...)}`.
  *
  * @example
  * const buildUrl = createBuildUrl(routes);
  * buildUrl("/")                                                  // "/"
  * buildUrl("/families/[family]", { params: { family: "Asteraceae" } }) // "/families/Asteraceae"
  * buildUrl("/list", { search: { page: 2 } })                     // "/list?page=2"
- *
- * // With a baseUrl:
- * const buildFullUrl = createBuildUrl(routes, { baseUrl: "https://example.com" });
- * buildFullUrl("/list")                                          // "https://example.com/list"
  */
-export function createBuildUrl<T extends Routes>(
-  routes: T,
-  options: CreateBuildUrlOptions = {}
-): BuildUrlFn<T> {
-  const baseUrl = options.baseUrl ?? "";
-  // Strip trailing slash so `${baseUrl}${path}` doesn't double the leading slash on path.
-  const normalizedBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
-
+export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
   return function buildUrl<K extends keyof T & string>(
     route: K,
     ...args: RouteParams<T, K> extends never
@@ -87,6 +75,6 @@ export function createBuildUrl<T extends Routes>(
       if (searchString) path += `?${searchString}`;
     }
 
-    return `${normalizedBase}${path}`;
+    return path;
   };
 }
