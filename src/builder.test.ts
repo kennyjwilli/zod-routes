@@ -13,14 +13,14 @@ const routes = {
   },
   "/list": {
     search: z.object({
-      page: z.coerce.number().int().catch(1),
-      tags: z.array(z.string()).catch([]),
+      page: z.coerce.number().int().default(1).catch(1),
+      tags: z.array(z.string()).default([]).catch([]),
     }),
   },
   "/list/[id]": {
     params: z.object({ id: z.string() }),
     search: z.object({
-      tab: z.enum(["a", "b"]).catch("a"),
+      tab: z.enum(["a", "b"]).default("a").catch("a"),
     }),
   },
 } as const;

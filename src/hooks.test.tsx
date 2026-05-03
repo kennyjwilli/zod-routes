@@ -32,28 +32,28 @@ function makeStubAdapter(initialUrl = "/"): RouterAdapter & {
 describe("_useSearchParamsState", () => {
   test("reads parsed values from URL", () => {
     const adapter = makeStubAdapter("/list?page=2");
-    const schema = z.object({ page: z.coerce.number().catch(1) });
+    const schema = z.object({ page: z.coerce.number().default(1).catch(1) });
     const { result } = renderHook(() => _useSearchParamsState(schema, adapter));
     expect(result.current.values).toEqual({ page: 2 });
   });
 
   test("returns defaults when URL is empty", () => {
     const adapter = makeStubAdapter("/list");
-    const schema = z.object({ page: z.coerce.number().catch(1) });
+    const schema = z.object({ page: z.coerce.number().default(1).catch(1) });
     const { result } = renderHook(() => _useSearchParamsState(schema, adapter));
     expect(result.current.values).toEqual({ page: 1 });
   });
 
   test("returns catch fallback on bad input (no throw)", () => {
     const adapter = makeStubAdapter("/list?page=notanumber");
-    const schema = z.object({ page: z.coerce.number().catch(99) });
+    const schema = z.object({ page: z.coerce.number().default(99).catch(99) });
     const { result } = renderHook(() => _useSearchParamsState(schema, adapter));
     expect(result.current.values).toEqual({ page: 99 });
   });
 
   test("update preserves the current path from adapter", () => {
     const adapter = makeStubAdapter("/list?page=2");
-    const schema = z.object({ page: z.coerce.number().catch(1) });
+    const schema = z.object({ page: z.coerce.number().default(1).catch(1) });
     const { result } = renderHook(() => _useSearchParamsState(schema, adapter));
     act(() => {
       result.current.update({ page: 5 });
@@ -101,8 +101,8 @@ describe("createUseRouteSearch", () => {
   const routes = {
     "/list": {
       search: z.object({
-        page: z.coerce.number().int().catch(1),
-        q: z.string().catch(""),
+        page: z.coerce.number().int().default(1).catch(1),
+        q: z.string().default("").catch(""),
       }),
     },
     "/about": {},

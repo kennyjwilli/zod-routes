@@ -8,22 +8,22 @@ import {
 } from "./schema-utils";
 
 describe("getSchemaDefaults", () => {
-  test("extracts catch fallback values", () => {
+  test("extracts default(x).catch(x) values (recommended pattern)", () => {
     const schema = z.object({
-      page: z.coerce.number().int().min(1).catch(1),
-      search: z.string().catch(""),
+      page: z.coerce.number().int().min(1).default(1).catch(1),
+      search: z.string().default("").catch(""),
     });
     expect(getSchemaDefaults(schema)).toEqual({ page: 1, search: "" });
   });
 
-  test("extracts default values", () => {
+  test("extracts plain default values", () => {
     const schema = z.object({
       tab: z.enum(["a", "b"]).default("a"),
     });
     expect(getSchemaDefaults(schema)).toEqual({ tab: "a" });
   });
 
-  test("returns no key for optional fields with no default", () => {
+  test("optional fields with no default produce undefined value", () => {
     const schema = z.object({
       maybe: z.string().optional(),
     });

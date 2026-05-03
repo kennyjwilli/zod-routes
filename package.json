@@ -32,12 +32,14 @@
     "prepublishOnly": "npm run check && npm run typecheck && npm test && npm run build"
   },
   "peerDependencies": {
+    "next": ">=14",
     "react": ">=18",
-    "zod": "^4",
-    "next": ">=14"
+    "zod": "^4"
   },
   "peerDependenciesMeta": {
-    "next": { "optional": true }
+    "next": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
@@ -53,7 +55,7 @@
     "tsup": "^8.3.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0",
-    "zod": "^4.0.0"
+    "zod": "^4.4.2"
   },
   "keywords": ["router", "routing", "zod", "react", "next", "type-safe", "url"],
   "repository": {

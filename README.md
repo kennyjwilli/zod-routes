@@ -12,7 +12,7 @@ const routes = {
   "/items/[id]": { params: z.object({ id: z.string() }) },
   "/list": {
     search: z.object({
-      page: z.coerce.number().int().catch(1),
+      page: z.coerce.number().int().default(1).catch(1),
     }),
   },
 } as const;
@@ -74,15 +74,24 @@ updateSearch({ q: null });                            // null deletes a field
 const routes = {
   "/path": {},
   "/path/[id]": { params: z.object({ id: z.string() }) },
-  "/list": { search: z.object({ page: z.coerce.number().catch(1) }) },
+  "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
   "/list/[id]": {
     params: z.object({ id: z.string() }),
-    search: z.object({ tab: z.enum(["a", "b"]).catch("a") }),
+    search: z.object({ tab: z.enum(["a", "b"]).default("a").catch("a") }),
   },
 } as const;
 ```
 
 `as const` is required so TypeScript preserves the literal route keys.
+
+#### Search-param schema convention
+
+Use `.default(x).catch(x)` for every search field:
+
+- `.default(x)` fires when the URL doesn't have the key (you'll get `x`).
+- `.catch(x)` fires when the URL has a value that fails validation (e.g., `?page=foo` for a number field).
+
+Bare `.catch(x)` won't work on Zod ≥4.4 — the parser errors with `expected nonoptional` for missing keys before `.catch()` can fire.
 
 ## Adapters
 

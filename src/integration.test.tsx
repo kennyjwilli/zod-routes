@@ -41,7 +41,7 @@ describe("createRouter integration", () => {
   const routes = {
     "/": {},
     "/items/[id]": { params: z.object({ id: z.string() }) },
-    "/list": { search: z.object({ page: z.coerce.number().catch(1) }) },
+    "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
   } as const;
 
   test("returns all expected bindings (buildFullUrl always present)", () => {
@@ -113,7 +113,7 @@ describe("createRouter with vanillaAdapter (real adapter)", () => {
 
   test("useRouteSearch round-trip via vanilla adapter", () => {
     const routes = {
-      "/list": { search: z.object({ page: z.coerce.number().catch(1) }) },
+      "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
     } as const;
     const { useRouteSearch } = createRouter({ routes, adapter: vanillaAdapter });
 

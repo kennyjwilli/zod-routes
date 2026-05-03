@@ -2,37 +2,16 @@ import type { z } from "zod";
 import type { WithNullableValues } from "./types";
 
 /**
- * Extracts the fallback value for a single field schema by walking its wrapper
- * chain: `.catch(v)` → v, `.default(v)` → v, `.optional()` → undefined.
+ * Extracts default/fallback values from a Zod object schema by parsing `{}`.
  *
- * Zod 4 (≥4.4) does not invoke `.catch()` for fields receiving `undefined` on a
- * required schema; it errors with `expected nonoptional` first. So we cannot rely
- * on `schema.parse({})` to extract field defaults.
+ * For fields to participate in defaults extraction, declare them with
+ * `.default(x).catch(x)`: `.default()` fires when the key is missing (which is
+ * the case here), and `.catch()` covers bad-value cases at parse time elsewhere.
+ * Bare `.catch()` alone won't work on Zod ≥4.4 — the parser errors with
+ * `expected nonoptional` before `.catch()` can fire.
  */
-function getFieldDefault(schema: unknown): unknown {
-  if (!schema || typeof schema !== "object") return undefined;
-  const s = schema as {
-    _def?: { type?: string; catchValue?: () => unknown; defaultValue?: unknown };
-  };
-  const def = s._def;
-  if (!def) return undefined;
-  if (def.type === "catch" && typeof def.catchValue === "function") {
-    return def.catchValue();
-  }
-  if (def.type === "default") {
-    return def.defaultValue;
-  }
-  return undefined;
-}
-
-/** Extracts default/fallback values from a Zod object schema, field-by-field. */
 export function getSchemaDefaults<T extends z.ZodObject<z.ZodRawShape>>(schema: T): z.output<T> {
-  const result: Record<string, unknown> = {};
-  for (const [key, fieldSchema] of Object.entries(schema.shape)) {
-    const value = getFieldDefault(fieldSchema);
-    if (value !== undefined) result[key] = value;
-  }
-  return result as z.output<T>;
+  return schema.parse({});
 }
 
 function isSchemaOfType(schema: unknown, type: string): boolean {

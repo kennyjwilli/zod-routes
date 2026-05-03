@@ -8,7 +8,7 @@ import type { AdapterLinkProps } from "./types";
 const routes = {
   "/": {},
   "/items/[id]": { params: z.object({ id: z.string() }) },
-  "/list": { search: z.object({ page: z.coerce.number().catch(1) }) },
+  "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
 } as const;
 
 const StubLink = ({ href, children, ...rest }: AdapterLinkProps) => (

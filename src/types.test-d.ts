@@ -15,10 +15,10 @@ const stubAdapter: RouterAdapter = {
 const routes = {
   "/": {},
   "/items/[id]": { params: z.object({ id: z.string() }) },
-  "/list": { search: z.object({ page: z.coerce.number().catch(1) }) },
+  "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
   "/items/[id]/edit": {
     params: z.object({ id: z.string() }),
-    search: z.object({ tab: z.enum(["a", "b"]).catch("a") }),
+    search: z.object({ tab: z.enum(["a", "b"]).default("a").catch("a") }),
   },
 } as const;
 
