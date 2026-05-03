@@ -11,7 +11,9 @@ import type { WithNullableValues } from "./types";
  */
 function getFieldDefault(schema: unknown): unknown {
   if (!schema || typeof schema !== "object") return undefined;
-  const s = schema as { _def?: { type?: string; catchValue?: () => unknown; defaultValue?: unknown } };
+  const s = schema as {
+    _def?: { type?: string; catchValue?: () => unknown; defaultValue?: unknown };
+  };
   const def = s._def;
   if (!def) return undefined;
   if (def.type === "catch" && typeof def.catchValue === "function") {

@@ -93,7 +93,10 @@ describe("serializeToURLSearchParams", () => {
   });
 
   test("arrays produce multiple params with same key", () => {
-    const params = serializeToURLSearchParams({ tags: ["a", "b"] }, { tags: [] });
+    const params = serializeToURLSearchParams<{ tags: string[] }>(
+      { tags: ["a", "b"] },
+      { tags: [] }
+    );
     expect(params.getAll("tags")).toEqual(["a", "b"]);
   });
 

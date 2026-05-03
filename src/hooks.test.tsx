@@ -1,11 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 import { z } from "zod";
-import {
-  _useSearchParamsState,
-  createUseRouteParams,
-  createUseRouteSearch,
-} from "./hooks";
+import { _useSearchParamsState, createUseRouteParams, createUseRouteSearch } from "./hooks";
 import type { AdapterLinkProps, RouterAdapter } from "./types";
 
 function makeStubAdapter(initialUrl = "/"): RouterAdapter & {
