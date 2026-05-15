@@ -20,9 +20,7 @@ export function createParseRouteSearch<T extends Routes>(routes: T): ParseRouteS
 
     const result = routeDef.search.safeParse(raw);
     if (!result.success) {
-      throw new Error(
-        `[zod-routes] Invalid search params for "${route}": ${result.error.message}`
-      );
+      throw new Error(`[zod-routes] Invalid search params for "${route}": ${result.error.message}`);
     }
     return result.data as SearchOutput<T, K>;
   };
