@@ -31,9 +31,9 @@
     "check": "biome check .",
     "prepublishOnly": "npm run check && npm run typecheck && npm test && npm run build"
   },
-  "homepage": "https://github.com/kennywilliams/zod-routes#readme",
+  "homepage": "https://github.com/kennyjwilli/zod-routes#readme",
   "bugs": {
-    "url": "https://github.com/kennywilliams/zod-routes/issues"
+    "url": "https://github.com/kennyjwilli/zod-routes/issues"
   },
   "engines": {
     "node": ">=18"
@@ -67,6 +67,6 @@
   "keywords": ["router", "routing", "zod", "react", "next", "type-safe", "url"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kennywilliams/zod-routes.git"
+    "url": "git+https://github.com/kennyjwilli/zod-routes.git"
   }
 }
