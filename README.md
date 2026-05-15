@@ -135,7 +135,7 @@ Built against the App Router (`next@>=14.1` recommended; `pushState`-based shall
 
 #### Server / Client split (recommended)
 
-`createRouter` returns both server-safe (`buildUrl`, `buildFullUrl`) and client-only (`TypedLink`, `useRouteParams`, `useRouteSearch`) bindings in one object. To use the server-safe pieces from server components and the client pieces from client components, split the export across two files:
+`createRouter` returns both server-safe (`buildUrl`, `parseRouteSearch`) and client-only (`TypedLink`, `useRouteParams`, `useRouteSearch`) bindings in one object. To use the server-safe pieces from server components and the client pieces from client components, split the export across two files:
 
 ```ts
 // app/lib/routes.ts  (no "use client" — importable from server components)
@@ -144,7 +144,7 @@ import { nextAdapter } from "zod-routes/next";
 
 const router = createRouter({ routes, adapter: nextAdapter });
 
-export const { buildUrl, buildFullUrl } = router;
+export const { buildUrl, parseRouteSearch } = router;
 // re-exported for the client file to consume:
 export const _router = router;
 ```
