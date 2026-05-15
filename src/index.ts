@@ -1,6 +1,7 @@
 import { createBuildUrl } from "./builder";
 import { createTypedLink } from "./components";
 import { createUseRouteParams, createUseRouteSearch } from "./hooks";
+import { createParseRouteSearch } from "./parsers";
 import type { RouterAdapter, RouterBindings, Routes } from "./types";
 
 export interface CreateRouterOptions<T extends Routes> {
@@ -14,12 +15,14 @@ export function createRouter<T extends Routes>(options: CreateRouterOptions<T>):
   const TypedLink = createTypedLink(buildUrl, adapter.Link);
   const useRouteParams = createUseRouteParams(routes, adapter);
   const useRouteSearch = createUseRouteSearch(routes, adapter);
+  const parseRouteSearch = createParseRouteSearch(routes);
 
   return {
     buildUrl,
     TypedLink,
     useRouteParams,
     useRouteSearch,
+    parseRouteSearch,
   };
 }
 
@@ -29,6 +32,7 @@ export type {
   BuildUrlFn,
   BuildUrlOptions,
   NavigateOptions,
+  ParseRouteSearchFn,
   RouteDefinition,
   RouteParams,
   RoutePath,

@@ -64,5 +64,5 @@ expectTypeOf(router.useRouteSearch("/list").search).toEqualTypeOf<{ page: number
 // the user's job (template literal at callsite). Verify by asserting the
 // property is absent at the type level.
 expectTypeOf<keyof typeof router>().toEqualTypeOf<
-  "buildUrl" | "TypedLink" | "useRouteParams" | "useRouteSearch"
+  "buildUrl" | "TypedLink" | "useRouteParams" | "useRouteSearch" | "parseRouteSearch"
 >();
