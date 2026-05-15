@@ -60,9 +60,19 @@ router.useRouteSearch("/items/[id]");
 // useRouteSearch return type
 expectTypeOf(router.useRouteSearch("/list").search).toEqualTypeOf<{ page: number }>();
 
+// parseRouteSearch: only allowed on routes with search
+router.parseRouteSearch("/list", {});
+// @ts-expect-error - no search
+router.parseRouteSearch("/", {});
+// @ts-expect-error - no search
+router.parseRouteSearch("/items/[id]", {});
+
+// parseRouteSearch return type narrows to the specific route's search output
+expectTypeOf(router.parseRouteSearch("/list", {})).toEqualTypeOf<{ page: number }>();
+
 // createRouter's return type does NOT include buildFullUrl — full URLs are
 // the user's job (template literal at callsite). Verify by asserting the
 // property is absent at the type level.
 expectTypeOf<keyof typeof router>().toEqualTypeOf<
-  "buildUrl" | "TypedLink" | "useRouteParams" | "useRouteSearch"
+  "buildUrl" | "TypedLink" | "useRouteParams" | "useRouteSearch" | "parseRouteSearch"
 >();

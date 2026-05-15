@@ -1,6 +1,6 @@
 {
   "name": "zod-routes",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "description": "Headless type-safe URL routing helpers for React apps, powered by Zod.",
   "license": "MIT",
   "author": "Kenny Williams",

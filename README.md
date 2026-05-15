@@ -52,6 +52,7 @@ Returns:
 - `TypedLink` — typed wrapper around the adapter's Link.
 - `useRouteParams(route)` — read dynamic route params.
 - `useRouteSearch(route)` — read and update search params.
+- `parseRouteSearch(route, raw)` — parse `searchParams` in a server component. Server-safe.
 
 #### Full URLs (sitemaps, emails, OG tags)
 
@@ -74,6 +75,28 @@ updateSearch({ page: 2 }, { shallow: false });        // full router navigation 
 updateSearch((prev) => ({ page: prev.page + 1 }));    // function form
 updateSearch({ q: null });                            // null deletes a field
 ```
+
+### Server-side parsing with `parseRouteSearch`
+
+In Next.js server components (or any server context), use `parseRouteSearch` to validate the incoming `searchParams` against your route's schema:
+
+```ts
+export default async function PublicationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const search = router.parseRouteSearch("/publications", await searchParams);
+  // `search` is fully typed as the parsed output of the route's search schema.
+}
+```
+
+**Behavior:**
+- Returns the parsed `z.output` of the schema on success.
+- Throws an `Error` with message `[zod-routes] Invalid search params for "<route>": <zod message>` on parse failure. Next.js renders an error boundary; pair with Sentry or your error tracker for visibility.
+- Throws if the route has no `search` declared — only reachable via type circumvention.
+
+**Asymmetry with `useRouteSearch`:** the client hook falls back to defaults and emits a `console.warn` on parse failure (a hook can't reasonably throw without breaking the render tree). The server parser throws, because thrown errors there become observable 500s rather than silently-wrong URLs.
 
 ### Route definition shape
 

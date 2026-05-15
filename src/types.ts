@@ -115,7 +115,9 @@ export type WithNullableValues<T> = {
   [K in keyof T]?: T[K] | null;
 };
 
-type SearchOutput<T, K extends RouteWithSearch<T>> = T[K] extends { search: z.ZodType<infer O> }
+export type SearchOutput<T, K extends RouteWithSearch<T>> = T[K] extends {
+  search: z.ZodType<infer O>;
+}
   ? O
   : never;
 
@@ -140,6 +142,11 @@ export type UseRouteSearchFn<T> = <K extends RouteWithSearch<T> & string>(
   route: K
 ) => RouteSearchState<T, K>;
 
+export type ParseRouteSearchFn<T> = <K extends RouteWithSearch<T> & string>(
+  route: K,
+  raw: unknown
+) => SearchOutput<T, K>;
+
 // ============================================================================
 // createRouter return type
 // ============================================================================
@@ -149,4 +156,5 @@ export interface RouterBindings<T extends Routes> {
   TypedLink: TypedLinkComponent<T>;
   useRouteParams: UseRouteParamsFn<T>;
   useRouteSearch: UseRouteSearchFn<T>;
+  parseRouteSearch: ParseRouteSearchFn<T>;
 }
