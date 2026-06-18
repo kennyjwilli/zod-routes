@@ -125,6 +125,10 @@ describe("createBuildUrl", () => {
     );
   });
 
+  test("anchor: bare '#' produces no fragment", () => {
+    expect(buildUrl("/article/[id]", { params: { id: "x" }, anchor: "#" })).toBe("/article/x");
+  });
+
   test("anchor: URL-encodes the fragment", () => {
     expect(buildUrl("/article/[id]", { params: { id: "x" }, anchor: "a b" })).toBe(
       "/article/x#a%20b"
