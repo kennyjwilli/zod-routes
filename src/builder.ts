@@ -4,6 +4,7 @@ import type { BuildUrlFn, RouteDefinition, Routes } from "./types";
 interface LooseOptions {
   params?: Record<string, unknown>;
   search?: Record<string, unknown>;
+  anchor?: unknown;
 }
 
 /**
@@ -62,6 +63,21 @@ export function createBuildUrl<T extends Routes>(routes: T): BuildUrlFn<T> {
       );
       const searchString = params.toString();
       if (searchString) path += `?${searchString}`;
+    }
+
+    if (callOptions?.anchor != null && routeDef.anchor) {
+      const result = routeDef.anchor.safeParse(callOptions.anchor);
+      const value = result.success ? result.data : String(callOptions.anchor);
+
+      if (!result.success) {
+        console.warn(`[zod-routes] Invalid anchor for "${route}", using raw value`, {
+          anchor: callOptions.anchor,
+          error: result.error,
+        });
+      }
+
+      const frag = value.replace(/^#/, "");
+      if (frag) path += `#${encodeURIComponent(frag)}`;
     }
 
     return path;

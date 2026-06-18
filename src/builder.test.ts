@@ -23,6 +23,14 @@ const routes = {
       tab: z.enum(["a", "b"]).default("a").catch("a"),
     }),
   },
+  "/docs": {
+    anchor: z.enum(["install", "usage"]),
+  },
+  "/article/[id]": {
+    params: z.object({ id: z.string() }),
+    search: z.object({ tab: z.enum(["a", "b"]).default("a").catch("a") }),
+    anchor: z.string(),
+  },
 } as const;
 
 describe("createBuildUrl", () => {
@@ -87,6 +95,46 @@ describe("createBuildUrl", () => {
         params: { family: "Asteraceae" },
       })
     ).toBe("/families/Asteraceae/genera/");
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  test("anchor: appended for declaring route", () => {
+    expect(buildUrl("/docs", { anchor: "install" })).toBe("/docs#install");
+  });
+
+  test("anchor: omitted when not provided", () => {
+    expect(buildUrl("/docs")).toBe("/docs");
+  });
+
+  test("anchor: ordered after search (path?search#anchor)", () => {
+    expect(
+      buildUrl("/article/[id]", { params: { id: "x" }, search: { tab: "b" }, anchor: "intro" })
+    ).toBe("/article/x?tab=b#intro");
+  });
+
+  test("anchor: present even when search collapses to default", () => {
+    expect(buildUrl("/article/[id]", { params: { id: "x" }, anchor: "intro" })).toBe(
+      "/article/x#intro"
+    );
+  });
+
+  test("anchor: tolerates a leading '#'", () => {
+    expect(buildUrl("/article/[id]", { params: { id: "x" }, anchor: "#intro" })).toBe(
+      "/article/x#intro"
+    );
+  });
+
+  test("anchor: URL-encodes the fragment", () => {
+    expect(buildUrl("/article/[id]", { params: { id: "x" }, anchor: "a b" })).toBe(
+      "/article/x#a%20b"
+    );
+  });
+
+  test("anchor: invalid value warns and uses raw", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // @ts-expect-error - intentionally invalid enum value
+    expect(buildUrl("/docs", { anchor: "nope" })).toBe("/docs#nope");
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
