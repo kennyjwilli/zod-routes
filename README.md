@@ -108,7 +108,13 @@ const routes = {
   "/list/[id]": {
     params: z.object({ id: z.string() }),
     search: z.object({ tab: z.enum(["a", "b"]).default("a").catch("a") }),
+    anchor: z.string(),
   },
+  "/posts/[id]": {
+    params: z.object({ id: z.string() }),
+    anchor: z.string(),
+  },
+  "/docs": { anchor: z.enum(["install", "usage"]) },
 } as const;
 ```
 
@@ -122,6 +128,39 @@ Use `.default(x).catch(x)` for every search field:
 - `.catch(x)` fires when the URL has a value that fails validation (e.g., `?page=foo` for a number field).
 
 Bare `.catch(x)` won't work on Zod ≥4.4 — the parser errors with `expected nonoptional` for missing keys before `.catch()` can fire.
+
+#### Anchors (URL fragments)
+
+A route may declare an optional `anchor` schema. `buildUrl` and `TypedLink` then accept an
+`anchor` option, validated and gated like `params`/`search`, and appended after the query
+string as `#<anchor>`:
+
+```ts
+buildUrl("/docs", { anchor: "install" });                       // → "/docs#install"
+buildUrl("/list/[id]", { params: { id: "x" }, search: { tab: "b" }, anchor: "intro" });
+//   → "/list/x?tab=b#intro"
+```
+
+The `anchor` schema's **output must be a string** (`z.ZodType<string>`), so use a string-
+producing schema. Pick strictness to match whether the anchor set is closed:
+
+| Schema | What you get | Use when |
+|---|---|---|
+| `z.enum(["install","usage"])` | gated + compile-time closed set | static section ids known at author time |
+| `z.string().regex(/^comment-/)` | gated + runtime shape check | dynamic but structured ids |
+| `z.string()` | gated only | fully dynamic, data-derived anchors |
+
+Example of a dynamic anchor that cannot be enumerated:
+
+```ts
+buildUrl("/posts/[id]", { params: { id }, anchor: `comment-${commentId}` });
+// → /posts/abc#comment-xyz789
+```
+
+**Scope:** anchors are a pure scroll pointer. The browser handles scroll-to-id — there is no
+`useRouteAnchor` hook, no adapter wiring, and nothing reaches the server (fragments are never
+sent in the request). For structured, readable, off-the-server state, a future `hashState`
+channel is planned; `anchor` is deliberately the scroll-only half.
 
 ## Adapters
 

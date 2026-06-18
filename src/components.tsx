@@ -23,12 +23,14 @@ export function createTypedLink<T extends Routes>(
     to,
     params,
     search,
+    anchor,
     children,
     ...rest
   }: TypedLinkProps<T, K>): React.ReactElement {
     const href = (buildUrl as (route: string, options?: unknown) => string)(to, {
       params,
       search,
+      anchor,
     });
     return (
       <Link href={href} {...rest}>

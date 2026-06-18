@@ -7,6 +7,7 @@ import type { z } from "zod";
 export interface RouteDefinition {
   params?: z.ZodObject<z.ZodRawShape>;
   search?: z.ZodObject<z.ZodRawShape>;
+  anchor?: z.ZodType<string>;
 }
 
 export type RouteKey = `/${string}`;
@@ -34,6 +35,14 @@ export type RouteSearch<T, K extends keyof T> = T[K] extends { search: z.ZodType
   ? Partial<S>
   : never;
 
+export type RouteWithAnchor<T> = {
+  [K in keyof T]: "anchor" extends keyof T[K] ? K : never;
+}[keyof T];
+
+export type RouteAnchor<T, K extends keyof T> = T[K] extends { anchor: z.ZodType<infer A> }
+  ? A
+  : never;
+
 // ============================================================================
 // BuildUrl Types
 // ============================================================================
@@ -41,13 +50,16 @@ export type RouteSearch<T, K extends keyof T> = T[K] extends { search: z.ZodType
 export type BuildUrlOptions<T, K extends keyof T> = (K extends RouteWithParams<T>
   ? { params: RouteParams<T, K> }
   : { params?: never }) &
-  (K extends RouteWithSearch<T> ? { search?: RouteSearch<T, K> } : { search?: never });
+  (K extends RouteWithSearch<T> ? { search?: RouteSearch<T, K> } : { search?: never }) &
+  (K extends RouteWithAnchor<T> ? { anchor?: RouteAnchor<T, K> } : { anchor?: never });
 
 export type BuildUrlFn<T> = <K extends keyof T & string>(
   route: K,
   ...args: RouteParams<T, K> extends never
     ? RouteSearch<T, K> extends never
-      ? []
+      ? RouteAnchor<T, K> extends never
+        ? []
+        : [options?: BuildUrlOptions<T, K>]
       : [options?: BuildUrlOptions<T, K>]
     : [options: BuildUrlOptions<T, K>]
 ) => string;
@@ -94,6 +106,7 @@ export interface TypedLinkOwnProps<T, K extends keyof T & string> {
   to: K;
   params?: RouteParams<T, K>;
   search?: RouteSearch<T, K>;
+  anchor?: RouteAnchor<T, K>;
 }
 
 export type TypedLinkProps<T, K extends keyof T & string> = TypedLinkOwnProps<T, K> &

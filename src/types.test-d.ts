@@ -1,7 +1,7 @@
 import { expectTypeOf } from "expect-type";
 import { z } from "zod";
 import { createRouter } from "./index";
-import type { AdapterLinkProps, RouterAdapter } from "./types";
+import type { AdapterLinkProps, RouteAnchor, RouterAdapter } from "./types";
 
 const stubAdapter: RouterAdapter = {
   usePath: () => "/",
@@ -19,6 +19,12 @@ const routes = {
   "/items/[id]/edit": {
     params: z.object({ id: z.string() }),
     search: z.object({ tab: z.enum(["a", "b"]).default("a").catch("a") }),
+  },
+  "/docs": { anchor: z.enum(["install", "usage"]) },
+  "/article/[id]": {
+    params: z.object({ id: z.string() }),
+    search: z.object({ tab: z.enum(["a", "b"]).default("a").catch("a") }),
+    anchor: z.string(),
   },
 } as const;
 
@@ -76,3 +82,32 @@ expectTypeOf(router.parseRouteSearch("/list", {})).toEqualTypeOf<{ page: number 
 expectTypeOf<keyof typeof router>().toEqualTypeOf<
   "buildUrl" | "TypedLink" | "useRouteParams" | "useRouteSearch" | "parseRouteSearch"
 >();
+
+// buildUrl: anchor allowed on a route that declares one
+router.buildUrl("/docs", { anchor: "install" });
+
+// buildUrl: anchor value is narrowed to the declared enum
+// @ts-expect-error - "nope" is not in the anchor enum
+router.buildUrl("/docs", { anchor: "nope" });
+
+// buildUrl: anchor NOT allowed on a route without an anchor schema
+// @ts-expect-error - "/list" declares no anchor
+router.buildUrl("/list", { anchor: "x" });
+
+// buildUrl: an anchor-only route still has an OPTIONAL options arg
+router.buildUrl("/docs");
+
+// buildUrl: free-form string anchor accepts any string
+router.buildUrl("/article/[id]", { params: { id: "x" }, anchor: "any-section" });
+
+// TypedLink: anchor prop is narrowed to the route's anchor schema
+router.TypedLink({ to: "/docs", anchor: "usage" });
+// @ts-expect-error - "nope" is not in the anchor enum
+router.TypedLink({ to: "/docs", anchor: "nope" });
+
+// buildUrl: params still required on a params+anchor route — anchor alone is insufficient
+// @ts-expect-error - missing required params on /article/[id]
+router.buildUrl("/article/[id]", { anchor: "section" });
+
+// RouteAnchor narrows to the declared enum union, not `string`
+expectTypeOf<RouteAnchor<typeof routes, "/docs">>().toEqualTypeOf<"install" | "usage">();
