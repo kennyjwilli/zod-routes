@@ -9,6 +9,7 @@ const routes = {
   "/": {},
   "/items/[id]": { params: z.object({ id: z.string() }) },
   "/list": { search: z.object({ page: z.coerce.number().default(1).catch(1) }) },
+  "/docs": { anchor: z.enum(["install", "usage"]) },
 } as const;
 
 const StubLink = ({ href, children, ...rest }: AdapterLinkProps) => (
@@ -43,6 +44,15 @@ describe("createTypedLink", () => {
       </TypedLink>
     );
     expect(screen.getByText("Page 2").closest("a")?.getAttribute("href")).toBe("/list?page=2");
+  });
+
+  test("builds href with anchor", () => {
+    render(
+      <TypedLink to="/docs" anchor="install">
+        Install
+      </TypedLink>
+    );
+    expect(screen.getByText("Install").closest("a")?.getAttribute("href")).toBe("/docs#install");
   });
 
   test("forwards anchor attributes", () => {
